@@ -21,6 +21,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using ZXing;
+using ZXing.Common;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -135,13 +136,24 @@ namespace ScannerApp.UserControls
                         wrb.SetSource(fileStream);
                         //wrb = await Windows.UI.Xaml.Media.Imaging.BitmapFactory.New(1, 1).FromStream(fileStream);
                     }
-                    br = new BarcodeReader { PossibleFormats = new BarcodeFormat[] { BarcodeFormat.CODE_39, BarcodeFormat.QR_CODE, BarcodeFormat.PDF_417 } };
+                    br = new BarcodeReader
+                    {
+                        AutoRotate = true,
+                        Options =
+                            new DecodingOptions
+                            {
+                                PossibleFormats =
+                                    new BarcodeFormat[]
+                                    {BarcodeFormat.CODE_39, BarcodeFormat.QR_CODE, BarcodeFormat.PDF_417},
+                                TryHarder = true,
+                                PureBarcode = false
+                            }
+                    };
                     res = br.Decode(wrb);
-                    CameraClickedEventArgs cameraArgs = null;
                     if (res != null)
                     {
                         BarcodeContent = res.Text;
-                        cameraArgs = new CameraClickedEventArgs { EncodedData = this.BarcodeContent };
+                        CameraClickedEventArgs cameraArgs = new CameraClickedEventArgs { EncodedData = this.BarcodeContent };
                         if (this.EmailDecoded != null)
                         {
                             EmailDecoded(this, cameraArgs);
